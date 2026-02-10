@@ -10,7 +10,7 @@
 
     // --- GAS ENDPOINT ---
     // Google Apps Scriptのウェブアプリ公開URL
-    const GAS_ENDPOINT = 'https://script.google.com/macros/s/YOUR_GAS_DEPLOYMENT_ID/exec';
+    const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxKYn28QVSv68PqsdCs85naARO-BXiR9VeiI5h1Caj4_5YmIOITjurH2HfRC3uQcu-qOg/exec';
 
     // --- QUESTION DATA ---
     // 4軸 × 3問 = 12問
@@ -550,7 +550,7 @@
     // --- REGISTER SCREEN ---
     function setupRegisterScreen(resultType) {
         // LINE友だち追加URLにsession_idとresult_numberを含める
-        const lineUrl = `https://app.mentai.me/personality/line-auth?session_id=${SESSION_ID}&result=${resultType.num}`;
+        const lineUrl = `https://lin.ee/JcFEbp0?session_id=${SESSION_ID}&result=${resultType.num}`;
         const lineBtn = document.getElementById('btn-line-register');
         if (lineBtn) {
             lineBtn.href = lineUrl;
