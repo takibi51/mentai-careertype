@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mentai - 株式会社mentaiの企業情報、チーム、ミッション、ビジョンについてご紹介します">
+    <title>企業情報 | Mentai - 次世代AI面接プラットフォーム</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="src/assets/images/favicon.png">
+    <link rel="stylesheet" href="src/styles/index.css">
+</head>
+
+<body>
+    <!-- Cursor Light Effect -->
+    <div class="cursor-light" id="cursorLight"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-inner">
+            <a href="index.html" class="logo">
+                <img src="src/assets/images/mentai-logo.png" alt="Mentai" class="logo-img">
+            </a>
+            <nav class="nav">
+                <a href="index.html#features" class="nav-link">特徴</a>
+                <a href="index.html#skills" class="nav-link">スキル分析</a>
+                <a href="index.html#scout" class="nav-link">スカウト</a>
+                <a href="contact.html" class="nav-link">お問い合わせ</a>
+                <a href="about.html" class="btn btn-secondary">企業情報</a>
+                <a href="https://dr.mentai.me/" class="btn btn-primary">無料で始める</a>
+            </nav>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="メニューを開く">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+        <!-- Mobile Navigation -->
+        <nav class="mobile-nav" id="mobileNav">
+            <a href="index.html#features" class="mobile-nav-link">特徴</a>
+            <a href="index.html#skills" class="mobile-nav-link">スキル分析</a>
+            <a href="index.html#scout" class="mobile-nav-link">スカウト</a>
+            <a href="contact.html" class="mobile-nav-link">お問い合わせ</a>
+            <a href="about.html" class="mobile-nav-link">企業情報</a>
+            <a href="https://dr.mentai.me/" class="btn btn-primary btn-mobile-cta">無料で始める</a>
+        </nav>
+    </header>
+
+    <!-- About Hero -->
+    <section class="about-hero">
+        <div class="container about-hero-content text-center fade-up">
+            <h1 class="heading-xl">企業情報</h1>
+            <p class="text-lg text-muted">自分らしさが、正当に評価される世界へ</p>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="section" id="team">
+        <div class="container">
+            <div class="text-center fade-up">
+                <h2 class="heading-lg"><span class="text-gradient">Team</span></h2>
+                <p class="text-lg text-muted">Mentaiを創るメンバー</p>
+            </div>
+            <div class="team-grid">
+                <!-- 代表取締役 石井美咲 -->
+                <div class="team-card glass-card fade-up stagger-1">
+                    <div class="team-avatar">👩‍💼</div>
+                    <h3 class="team-name">石井 美咲</h3>
+                    <p class="team-role">代表取締役</p>
+                    <p class="team-bio">
+                        消費財メーカー、コンサルティングファームで3年半マーケティングを経験。
+                        2017年リクルートキャリア（現リクルート）に転職。
+                        キャリアアドバイザーを経て、人事部に異動。採用、組織活性、要員モニタリングなど包括的に人事業務を担当。
+                        <br><br>
+                        JCDA認定CDA（キャリア・デベロップメント・アドバイザー）。
+                        書道は師範代、8歳から筆を持ち、現在は書道家 粹月としても活動中。
+                        日本習字教育財団漢字部教授、讀賣書法展・書道學會展・謙慎書道展など受賞多数。
+                    </p>
+                </div>
+                <!-- 取締役 鈴鹿竜吾 -->
+                <div class="team-card glass-card fade-up stagger-2">
+                    <div class="team-avatar">👨‍💼</div>
+                    <h3 class="team-name">鈴鹿 竜吾</h3>
+                    <p class="team-role">取締役</p>
+                    <p class="team-bio">
+                        学生起業、DeNAを経て株式会社ライトマップ創業。
+                        2008年DeNA新卒入社。新規開拓営業にてマネージャー経験後、新卒採用へ異動。
+                        採用選考スキームの設計・運用などを担当し、2014年DeNA退職後、株式会社ライトマップ創業し代表取締役に就任。
+                        スタートアップやベンチャーの採用支援・制度設計実施。
+                        <br><br>
+                        現在は株式会社アウローラ取締役 / 株式会社UPs代表取締役 / 株式会社START取締役 / 株式会社Aspida代表取締役。
+                        アミューズメント店舗 / BAR経営など店舗ビジネス展開も実施。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Vision -->
+    <section class="section section-alt" id="mission">
+        <div class="container">
+            <div class="mission-vision">
+                <!-- Mission -->
+                <div class="mv-card glass-card fade-up stagger-1">
+                    <h2 class="mv-title">
+                        <span class="mv-icon">🎯</span>
+                        <span class="text-gradient">Mission</span>
+                    </h2>
+                    <h3 class="heading-md" style="margin-bottom: var(--space-md);">
+                        自分らしさが、<br>正当に評価される世界へ。
+                    </h3>
+                    <p class="text-muted" style="line-height: 1.9;">
+                        私たちは、誰もが「学歴」や「経歴」だけでなく、
+                        その人らしい力で正当に評価される社会の実現を目指しています。
+                        <br><br>
+                        AI技術を活用し、すべての人が"自分らしさ"を見つけ、
+                        それを活かせる機会を広げていきます。
+                        <br><br>
+                        エントリーシートや書類だけでは伝わらない
+                        人の魅力を、正しく届けられる社会へ。
+                    </p>
+                </div>
+                <!-- Vision -->
+                <div class="mv-card glass-card fade-up stagger-2">
+                    <h2 class="mv-title">
+                        <span class="mv-icon">🌟</span>
+                        <span class="text-gradient">Vision</span>
+                    </h2>
+                    <h3 class="heading-md" style="margin-bottom: var(--space-md);">
+                        あなたらしい就活を、<br>ここから。
+                    </h3>
+                    <p class="text-muted" style="line-height: 1.9;">
+                        専門的な視点から、面接・話し方・伝え方のコツなど、
+                        就職・転職における疑問や不安をわかりやすく、
+                        親しみやすい形で発信し、
+                        誰もが前向きにキャリアに挑戦できる世界をつくります。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Company Info -->
+    <section class="section" id="company">
+        <div class="container">
+            <div class="text-center fade-up">
+                <h2 class="heading-lg"><span class="text-gradient">Company Info</span></h2>
+                <p class="text-lg text-muted">会社概要</p>
+            </div>
+            <div class="glass-card fade-up stagger-1"
+                style="margin-top: var(--space-2xl); max-width: 800px; margin-left: auto; margin-right: auto;">
+                <div class="company-info-grid">
+                    <div class="info-item">
+                        <span class="info-label">会社名</span>
+                        <span class="info-value">株式会社mentai</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">代表者</span>
+                        <span class="info-value">石井 美咲</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">事業内容</span>
+                        <span class="info-value">AI面接対策プラットフォームの開発・運営<br>キャリア支援プロダクト</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">所在地</span>
+                        <span class="info-value">東京都渋谷区渋谷２丁目１９－１５<br>宮益坂ビルディング６０９</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">資本金</span>
+                        <span class="info-value">700万円</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">有料職業紹介事業許可番号</span>
+                        <span class="info-value">13-ユ-318681</span>
+                    </div>
+                    <div class="info-item" style="grid-column: span 2;">
+                        <span class="info-label">許可年月日</span>
+                        <span class="info-value">令和7年11月1日</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section cta-section" id="cta">
+        <div class="container">
+            <div class="cta-content fade-up">
+                <h2 class="heading-lg cta-title">
+                    あなたの可能性を、<br>
+                    <span class="text-gradient">正しく見てくれる企業と出会おう。</span>
+                </h2>
+                <p class="text-lg cta-subtitle">今すぐ始めて、あなたらしいキャリアを切り開こう</p>
+                <a href="https://dr.mentai.me/" class="btn btn-primary btn-lg">今すぐ無料でAI面接を受ける</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <a href="index.html" class="logo">
+                    <img src="src/assets/images/mentai-logo.png" alt="Mentai" class="logo-img">
+                </a>
+                <div class="footer-links">
+                    <a href="about.html" class="footer-link">企業情報</a>
+                    <a href="about.html#team" class="footer-link">チーム</a>
+                    <a href="about.html#mission" class="footer-link">ミッション</a>
+                    <a href="https://www.instagram.com/mentai_ai_lab/" target="_blank" class="footer-link">Instagram</a>
+                    <a href="privacy.html" class="footer-link">プライバシーポリシー</a>
+                </div>
+                <p class="footer-copyright">© 2026 株式会社mentai All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="src/main.js"></script>
+</body>
+
+</html>

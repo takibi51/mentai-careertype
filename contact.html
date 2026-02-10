@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お問い合わせ | Mentai</title>
+    <meta name="description" content="Mentaiへのお問い合わせページです。サービスに関するご質問やご相談をお気軽にお寄せください。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="src/assets/images/favicon.png">
+    <link rel="stylesheet" href="src/styles/index.css">
+</head>
+
+<body>
+    <!-- Cursor Light Effect -->
+    <div class="cursor-light"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-inner">
+            <a href="index.html" class="logo">
+                <img src="src/assets/images/mentai-logo.png" alt="Mentai" class="logo-img">
+            </a>
+            <nav class="nav">
+                <a href="index.html#features" class="nav-link">特徴</a>
+                <a href="index.html#skills" class="nav-link">スキル分析</a>
+                <a href="index.html#scout" class="nav-link">スカウト</a>
+                <a href="contact.html" class="nav-link active">お問い合わせ</a>
+                <a href="about.html" class="btn btn-secondary">企業情報</a>
+                <a href="https://dr.mentai.me/" class="btn btn-primary">無料で始める</a>
+            </nav>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="メニューを開く">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+        <!-- Mobile Navigation -->
+        <nav class="mobile-nav" id="mobileNav">
+            <a href="index.html#features" class="mobile-nav-link">特徴</a>
+            <a href="index.html#skills" class="mobile-nav-link">スキル分析</a>
+            <a href="index.html#scout" class="mobile-nav-link">スカウト</a>
+            <a href="contact.html" class="mobile-nav-link">お問い合わせ</a>
+            <a href="about.html" class="mobile-nav-link">企業情報</a>
+            <a href="https://dr.mentai.me/" class="btn btn-primary btn-mobile-cta">無料で始める</a>
+        </nav>
+    </header>
+
+    <!-- Contact Hero -->
+    <section class="contact-hero">
+        <div class="container">
+            <div class="contact-hero-content">
+                <h1 class="heading-lg">お問い合わせ</h1>
+                <p class="text-lg text-muted">
+                    サービスに関するご質問やご相談など、<br>
+                    お気軽にお問い合わせください。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section class="section contact-section">
+        <div class="container">
+            <div class="contact-form-wrapper">
+                <form class="contact-form glass-card" action="https://formsubmit.co/ishii@mentailab.com" method="POST">
+                    <!-- FormSubmit Hidden Fields -->
+                    <input type="hidden" name="_subject" value="Mentaiお問い合わせ">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_next" value="https://service.v2.mentailab.com/thanks.html">
+                    <input type="text" name="_honey" style="display:none">
+
+                    <div class="form-group">
+                        <label for="name" class="form-label">
+                            お名前 <span class="required">*</span>
+                        </label>
+                        <input type="text" id="name" name="name" class="form-input" placeholder="例：山田 太郎" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="company" class="form-label">
+                            会社名（法人の方のみ）
+                        </label>
+                        <input type="text" id="company" name="company" class="form-input" placeholder="例：株式会社mentai">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            メールアドレス <span class="required">*</span>
+                        </label>
+                        <input type="email" id="email" name="email" class="form-input" placeholder="example@mentai.me"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message" class="form-label">
+                            お問い合わせ内容 <span class="required">*</span>
+                        </label>
+                        <textarea id="message" name="message" class="form-input form-textarea"
+                            placeholder="お問い合わせ内容をご記入ください" rows="6" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg btn-submit">
+                        送信する
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <a href="index.html" class="logo">
+                    <img src="src/assets/images/mentai-logo.png" alt="Mentai" class="logo-img">
+                </a>
+                <div class="footer-links">
+                    <a href="about.html" class="footer-link">企業情報</a>
+                    <a href="about.html#team" class="footer-link">チーム</a>
+                    <a href="about.html#mission" class="footer-link">ミッション</a>
+                    <a href="contact.html" class="footer-link">お問い合わせ</a>
+                    <a href="https://www.instagram.com/mentai_ai_lab/" target="_blank" class="footer-link">Instagram</a>
+                    <a href="privacy.html" class="footer-link">プライバシーポリシー</a>
+                </div>
+                <p class="footer-copyright">© 2026 株式会社mentai All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="src/main.js"></script>
+</body>
+
+</html>
