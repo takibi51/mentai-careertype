@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match - 人材マッチングシステム</title>
+    <meta name="description" content="候補者×求人のマッチングを対話で発見し、スコアと理由で判断する人材紹介支援システム">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="src/styles/variables.css">
+    <link rel="stylesheet" href="src/styles/base.css">
+    <link rel="stylesheet" href="src/styles/components.css">
+    <link rel="stylesheet" href="src/styles/layout.css">
+
+    <!-- SVG Gradient for Score Rings -->
+    <svg width="0" height="0" style="position:absolute">
+        <defs>
+            <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#818cf8" />
+                <stop offset="100%" style="stop-color:#ec4899" />
+            </linearGradient>
+        </defs>
+    </svg>
+</head>
+
+<body>
+    <div id="app" class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🎯</div>
+                    <span class="sidebar-logo-text">Match</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav" id="nav">
+                <div class="nav-item active" data-tab="candidate-search">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-label">候補者検索</span>
+                </div>
+                <div class="nav-item" data-tab="job-search">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-label">求人票から検索</span>
+                </div>
+                <div class="nav-item" data-tab="interview">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-label">面談シート作成</span>
+                </div>
+                <div class="nav-item" data-tab="proposals">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">提案済み（進捗）</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="settings-btn" id="settingsBtn">
+                    <span class="nav-icon">⚙️</span>
+                    <span>設定</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Candidate Search Tab -->
+            <div class="tab-content active" id="tab-candidate-search">
+                <div class="main-header">
+                    <h1 class="main-title">候補者検索</h1>
+                    <p class="main-description">【Must条件】職種・必須スキルなど、必ず含めたい条件を入力してください</p>
+                </div>
+
+                <!-- Search Section -->
+                <div class="search-section">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="candidateSearchInput" placeholder="例：経理 月次決算 簿記2級">
+                    </div>
+
+                    <div class="example-chips" id="candidateExampleChips">
+                        <button class="example-chip" data-query="営業">営業</button>
+                        <button class="example-chip" data-query="PM">PM</button>
+                        <button class="example-chip" data-query="java">java</button>
+                    </div>
+
+                    <!-- Search History & Saved Views -->
+                    <div class="search-history-section" id="searchHistorySection" style="margin-top: var(--space-3);">
+                        <div class="history-row" id="searchHistoryRow"></div>
+                    </div>
+
+                    <div class="filters-row" id="candidateFilters" style="margin-top: var(--space-4);">
+                        <select class="filter-select" id="filterJobType">
+                            <option value="">職種（すべて）</option>
+                            <option value="営業">営業</option>
+                            <option value="マーケティング">マーケティング</option>
+                            <option value="エンジニア">エンジニア</option>
+                            <option value="経理">経理</option>
+                            <option value="人事">人事</option>
+                            <option value="PM">PM/PdM</option>
+                            <option value="デザイナー">デザイナー</option>
+                        </select>
+
+                        <select class="filter-select" id="filterExperience">
+                            <option value="">経験年数（すべて）</option>
+                            <option value="1-3">1〜3年</option>
+                            <option value="4-6">4〜6年</option>
+                            <option value="7-10">7〜10年</option>
+                            <option value="10+">10年以上</option>
+                        </select>
+
+                        <button class="filter-toggle" id="filterRemote">
+                            🏠 リモート希望
+                        </button>
+
+                        <button class="filter-toggle" id="filterSaved">
+                            🔖 保存済みのみ
+                        </button>
+
+                        <select class="filter-select" id="sortCandidates">
+                            <option value="matchScore">マッチ度順</option>
+                            <option value="marketScore">市場決まりやすさ順</option>
+                            <option value="salaryDesc">現年収順（高い順）</option>
+                            <option value="salaryAsc">現年収順（低い順）</option>
+                            <option value="createdAt">新着順</option>
+                        </select>
+
+                        <button class="btn btn-ghost btn-sm" id="saveSearchBtn" style="margin-left: auto;">
+                            💾 条件を保存
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Comparison Panel (hidden by default) -->
+                <div class="comparison-panel" id="comparisonPanel" style="display: none;">
+                    <div class="comparison-header">
+                        <span class="comparison-title">📊 候補者比較</span>
+                        <button class="btn btn-ghost btn-sm" id="clearComparison">クリア</button>
+                    </div>
+                    <div class="comparison-grid" id="comparisonGrid"></div>
+                </div>
+
+                <!-- Results -->
+                <div class="results-header">
+                    <span class="results-count" id="candidateResultCount">
+                        <strong>0</strong> 件の候補者
+                    </span>
+                    <div class="results-actions">
+                        <button class="btn btn-secondary btn-sm" id="bulkSaveBtn" disabled>
+                            💾 一括保存
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="bulkProposeBtn" disabled>
+                            📤 一括提案
+                        </button>
+                        <button class="btn btn-ghost btn-sm" id="exportCandidatesBtn">
+                            ⬇️ エクスポート
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-grid" id="candidateResults">
+                    <!-- Candidate cards will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Job Search Tab -->
+            <div class="tab-content" id="tab-job-search">
+                <div class="main-header">
+                    <h1 class="main-title">求人票から候補者検索</h1>
+                    <p class="main-description">求人を選択または追加して、マッチする候補者を見つけましょう。</p>
+                </div>
+
+                <div class="card" style="margin-bottom: var(--space-6);">
+                    <div class="card-header">
+                        <span class="card-title">求人を選択</span>
+                        <button class="btn btn-primary btn-sm" id="addJobBtn">＋ 求人を追加</button>
+                    </div>
+                    <div class="card-body">
+                        <select class="input" id="jobSelect" style="margin-bottom: var(--space-4);">
+                            <option value="">求人を選択してください</option>
+                        </select>
+                        <div class="example-chips">
+                            <button class="example-chip" id="importJobCsv">📄 CSVから取り込み</button>
+                            <button class="example-chip" id="downloadJobTemplate">⬇️ テンプレDL</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Job Info -->
+                <div id="selectedJobInfo" style="display: none;">
+                    <div class="card" style="margin-bottom: var(--space-6);">
+                        <div class="card-header">
+                            <span class="card-title" id="selectedJobTitle">-</span>
+                            <span class="badge badge-star" id="selectedJobStar" style="display: none;">⭐ 注目</span>
+                        </div>
+                        <div class="card-body">
+                            <p id="selectedJobCompany" style="margin-bottom: var(--space-2);"></p>
+                            <p id="selectedJobConditions" style="font-size: var(--font-size-sm);"></p>
+                            <button class="btn btn-ghost btn-sm" id="viewJobDetailBtn"
+                                style="margin-top: var(--space-3);">
+                                詳細を見る
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="filters-row" style="margin-bottom: var(--space-4);">
+                        <button class="filter-toggle" id="filterSavedOnly">💾 保存済みのみ</button>
+                        <select class="filter-select" id="sortJobCandidates">
+                            <option value="matchScore">マッチ度順</option>
+                            <option value="marketScore">市場決まりやすさ順</option>
+                            <option value="salaryDesc">現年収順（高い順）</option>
+                            <option value="salaryAsc">現年収順（低い順）</option>
+                            <option value="createdAt">新着順</option>
+                        </select>
+                    </div>
+
+                    <div class="results-header">
+                        <span class="results-count" id="jobCandidateCount"><strong>0</strong> 件の候補者</span>
+                    </div>
+
+                    <div class="results-grid" id="jobCandidateResults"></div>
+                </div>
+            </div>
+
+            <!-- Interview Tab -->
+            <div class="tab-content" id="tab-interview">
+                <div class="main-header">
+                    <h1 class="main-title">面談シート作成</h1>
+                    <p class="main-description">面談の文字起こしを貼り付け、AIで解析レポートを生成。求人提案も同時に行います。</p>
+                </div>
+
+                <div class="card" style="margin-bottom: var(--space-6);">
+                    <div class="card-header">
+                        <span class="card-title">🔍 候補者を紐付け</span>
+                    </div>
+                    <div class="card-body">
+                        <input type="text" class="input" id="interviewCandidateSearch"
+                            placeholder="候補者名・企業名・職種・スキルで横断検索...">
+                        <p
+                            style="font-size: var(--font-size-xs); color: var(--text-muted); margin-top: var(--space-1);">
+                            例: 田中、営業、React、メルカリ</p>
+                        <div id="interviewCandidateResults" style="margin-top: var(--space-3);"></div>
+                        <div id="linkedCandidate"
+                            style="display: none; margin-top: var(--space-3); padding: var(--space-3); background: var(--bg-surface-elevated); border-radius: var(--radius-md);">
+                            <div style="display: flex; align-items: center; gap: var(--space-3);">
+                                <span class="chip chip-primary" id="linkedCandidateName"
+                                    style="cursor: pointer;"></span>
+                                <span id="linkedCandidateInfo"
+                                    style="font-size: var(--font-size-sm); color: var(--text-secondary);"></span>
+                                <button class="btn btn-ghost btn-sm" id="unlinkCandidate">✕ 解除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: var(--space-6);">
+                    <div class="card-header">
+                        <span class="card-title">📝 面談内容</span>
+                        <select class="filter-select" id="interviewInputType" style="width: auto;">
+                            <option value="transcript">文字起こし</option>
+                            <option value="manual">手入力</option>
+                            <option value="recording">録音（Phase2）</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="input textarea" id="interviewText" rows="10"
+                            placeholder="面談の文字起こしや要点をここに入力してください...&#10;&#10;例：&#10;・職務経歴の詳細&#10;・転職理由と志望動機&#10;・希望条件&#10;・人柄や印象&#10;・懸念点やフォローアップ事項"></textarea>
+                        <div style="display: flex; gap: var(--space-2); margin-top: var(--space-3); flex-wrap: wrap;">
+                            <button class="btn btn-primary" id="runInterviewAnalysisBtn">🤖 AI解析を実行</button>
+                            <button class="example-chip" data-action="evaluate">この面談の評価ポイントを整理して</button>
+                            <button class="example-chip" data-action="negative">ネガティブチェックも含めてまとめて</button>
+                            <button class="example-chip" data-action="questions">次回面談の質問案を出して</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="interviewAnalysisCard" style="display: none;">
+                    <div class="card-header">
+                        <span class="card-title">📊 解析レポート</span>
+                        <div style="display: flex; gap: var(--space-2);">
+                            <button class="btn btn-secondary btn-sm" id="editInterviewReportBtn">✏️ 編集</button>
+                            <button class="btn btn-secondary btn-sm" id="downloadInterviewPdfBtn">📄 PDF</button>
+                            <button class="btn btn-primary btn-sm" id="saveInterviewBtn">💾 保存</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- タグエリア -->
+                        <div id="interviewTagsArea" style="margin-bottom: var(--space-4);">
+                            <h4 style="font-size: var(--font-size-sm); margin-bottom: var(--space-2);">🏷️ マッチングタグ</h4>
+                            <div id="interviewTags" style="display: flex; flex-wrap: wrap; gap: var(--space-2);"></div>
+                        </div>
+                        <!-- レポート本文 -->
+                        <div id="interviewAnalysisContent"
+                            style="white-space: pre-wrap; font-size: var(--font-size-sm); line-height: var(--line-height-relaxed);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 紐付け後に表示される求人一覧 -->
+                <div class="card" id="interviewJobListCard" style="display: none; margin-bottom: var(--space-6);">
+                    <div class="card-header">
+                        <span class="card-title">💼 マッチする求人一覧</span>
+                        <span class="text-muted" id="interviewJobListCount"
+                            style="font-size: var(--font-size-sm);"></span>
+                    </div>
+                    <div class="card-body" id="interviewJobListContent">
+                        <!-- 求人カードがここに挿入される -->
+                    </div>
+                </div>
+
+                <!-- AI提案の求人表示エリア（個別詳細表示用） -->
+                <div class="card" id="interviewSuggestedJobCard" style="display: none;">
+                    <div class="card-header">
+                        <span class="card-title">💼 AIが提案した求人</span>
+                        <button class="btn btn-ghost btn-sm" id="closeSuggestedJobCard">✕</button>
+                    </div>
+                    <div class="card-body" id="interviewSuggestedJobContent"></div>
+                    <div class="card-footer"
+                        style="display: flex; gap: var(--space-2); justify-content: flex-end; padding: var(--space-3); border-top: 1px solid var(--border-default);">
+                        <button class="btn btn-secondary" id="viewSuggestedJobDetailBtn">詳細を見る</button>
+                        <button class="btn btn-primary" id="proposeSuggestedJobBtn">📤 この求人で提案</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proposals Tab -->
+            <div class="tab-content" id="tab-proposals">
+                <div class="main-header">
+                    <h1 class="main-title">提案済み（進捗管理）</h1>
+                    <p class="main-description">提案した候補者の進捗を管理します。</p>
+                </div>
+
+                <div class="filters-row" style="margin-bottom: var(--space-4);">
+                    <select class="filter-select" id="filterProposalStatus">
+                        <option value="">ステータス（すべて）</option>
+                        <option value="提案済み">提案済み</option>
+                        <option value="カジュアル面談">カジュアル面談</option>
+                        <option value="一次面接">一次面接</option>
+                        <option value="二次面接">二次面接</option>
+                        <option value="三次面接">三次面接</option>
+                        <option value="内定">内定</option>
+                        <option value="内定承諾">内定承諾</option>
+                        <option value="決定">決定</option>
+                    </select>
+                </div>
+
+                <div class="card">
+                    <table class="data-table" id="proposalsTable">
+                        <thead>
+                            <tr>
+                                <th>候補者</th>
+                                <th>求人</th>
+                                <th>ステータス</th>
+                                <th>メモ</th>
+                                <th>最終更新</th>
+                                <th>次アクション</th>
+                            </tr>
+                        </thead>
+                        <tbody id="proposalsTableBody">
+                            <!-- Rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Column / AI Panel -->
+        <aside class="right-column" id="rightColumn">
+            <div class="right-header">
+                <div class="right-header-icon">🤖</div>
+                <span class="right-header-title">AIパートナー</span>
+            </div>
+
+            <div class="right-body">
+                <!-- Clear button (always visible) -->
+                <div id="clearConditionsRow"
+                    style="margin-bottom: var(--space-3); display: flex; justify-content: flex-end;">
+                    <button id="clearConditionsBtn" class="btn btn-ghost btn-sm"
+                        style="font-size: var(--font-size-xs); padding: 4px 8px;">🗑 クリア</button>
+                </div>
+
+                <!-- Should Condition Label -->
+                <div class="should-condition-label" style="margin-bottom: var(--space-3);">
+                    <span
+                        style="font-size: var(--font-size-xs); color: var(--color-accent-teal); font-weight: var(--font-weight-semibold);">【Should条件】任意の絞込み・優先条件</span>
+                </div>
+
+                <div class="quick-actions" id="quickActions">
+                    <button class="quick-action-btn" data-action="should-communication">
+                        💬 コミュニケーション能力が高い人だけ表示
+                    </button>
+                    <button class="quick-action-btn" data-action="should-mental">
+                        💪 メンタルが強い人だけ表示
+                    </button>
+                    <button class="quick-action-btn" data-action="should-venture">
+                        🚀 ベンチャーマインドが強い人だけ表示
+                    </button>
+                </div>
+
+                <p id="aiHelperText"
+                    style="font-size: var(--font-size-sm); color: var(--text-muted); margin: var(--space-4) 0;">
+                    上のボタンまたは自由入力で候補者を検索できます。何でも聞いてください。
+                </p>
+
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Chat messages will be inserted here -->
+                </div>
+            </div>
+
+            <div class="right-footer">
+                <div class="chat-input-container">
+                    <textarea class="chat-input" id="chatInput" placeholder="例：リーダーシップがある人、営業経験者で..."
+                        rows="1"></textarea>
+                    <button class="chat-send-btn" id="chatSendBtn">➤</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <!-- Candidate Detail Modal -->
+    <div class="modal" id="candidateModal" style="max-width: 900px;">
+        <div class="modal-header">
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+                <h3 class="modal-title" id="candidateModalTitle">候補者詳細</h3>
+                <button class="bookmark-btn" id="modalBookmarkBtn" title="保存">
+                    <span class="bookmark-icon">🔖</span>
+                </button>
+            </div>
+            <button class="modal-close" id="closeCandidateModal">✕</button>
+        </div>
+        <div class="modal-body" id="candidateModalBody">
+            <!-- Content will be inserted dynamically -->
+        </div>
+        <div class="modal-footer" style="flex-wrap: wrap; gap: var(--space-2);">
+            <button class="btn btn-ghost btn-sm" id="downloadDocsBtn">📄 書類DL</button>
+            <button class="btn btn-ghost btn-sm" id="viewInterviewBtn">📝 面談シート確認</button>
+            <select class="filter-select" id="modalStatusSelect" style="width: auto;">
+                <option value="">進捗変更...</option>
+                <option value="提案済">提案済</option>
+                <option value="返信待ち">返信待ち</option>
+                <option value="面談調整">面談調整</option>
+                <option value="面談済">面談済</option>
+                <option value="決定">決定</option>
+                <option value="見送り">見送り</option>
+            </select>
+            <div style="flex: 1;"></div>
+            <button class="btn btn-secondary" id="generateResumeBtn">📄 提案用レジュメ生成</button>
+            <button class="btn btn-primary" id="proposeFromModalBtn">📤 提案する</button>
+        </div>
+    </div>
+
+    <!-- Job Detail Modal (Enhanced) -->
+    <div class="modal" id="jobModal" style="max-width: 1000px;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="jobModalTitle">求人詳細</h3>
+            <button class="modal-close" id="closeJobModal">✕</button>
+        </div>
+        <div class="modal-body"
+            style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-6); max-height: 70vh; overflow-y: auto;">
+            <!-- 左：求人情報 -->
+            <div id="jobModalBody" style="display: flex; flex-direction: column; gap: var(--space-4);">
+                <!-- Content will be inserted dynamically -->
+            </div>
+
+            <!-- 右：AIアシスタント -->
+            <div
+                style="background: var(--bg-surface); border-radius: var(--radius-xl); padding: var(--space-4); display: flex; flex-direction: column; height: fit-content;">
+                <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3);">
+                    <span style="font-size: 1.25rem;">🤖</span>
+                    <span style="font-weight: var(--font-weight-semibold);">AIパートナー</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-3);">
+                    <button class="quick-action-btn job-modal-ai-btn" data-action="job-match"
+                        style="font-size: var(--font-size-xs); padding: var(--space-2);">
+                        🎯 この求人票でマッチしそうな人の特徴を教えて
+                    </button>
+                    <button class="quick-action-btn job-modal-ai-btn" data-action="job-success"
+                        style="font-size: var(--font-size-xs); padding: var(--space-2);">
+                        💡 求人を決まりやすくするためのポイントを教えて
+                    </button>
+                </div>
+                <div style="margin-bottom: var(--space-3);">
+                    <div style="display: flex; gap: var(--space-2);">
+                        <input type="text" id="jobModalAiInput" class="input" placeholder="自由に質問..."
+                            style="font-size: var(--font-size-xs); padding: var(--space-2); flex: 1;">
+                        <button id="jobModalAiSendBtn" class="btn btn-primary btn-sm"
+                            style="padding: var(--space-2);">➤</button>
+                    </div>
+                </div>
+                <div id="jobModalAiResponse"
+                    style="font-size: var(--font-size-sm); color: var(--text-secondary); line-height: var(--line-height-relaxed); max-height: 200px; overflow-y: auto;">
+                </div>
+
+                <!-- 紐づく候補者サマリ -->
+                <div
+                    style="margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--border-default);">
+                    <h4 style="font-size: var(--font-size-sm); margin-bottom: var(--space-2);">📊 紐づく候補者</h4>
+                    <div id="jobModalCandidateSummary"
+                        style="font-size: var(--font-size-xs); color: var(--text-muted);"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="editJobBtn">✏️ 編集</button>
+            <div style="flex: 1;"></div>
+            <button class="btn btn-primary" id="searchJobCandidatesBtn">🔍 この条件で候補者を検索</button>
+        </div>
+    </div>
+
+    <!-- Add Job Modal (AI Enhanced) -->
+    <div class="modal" id="addJobModal" style="max-width: 1100px;">
+        <div class="modal-header">
+            <h3 class="modal-title">求人を追加</h3>
+            <button class="modal-close" id="closeAddJobModal">✕</button>
+        </div>
+        <div class="modal-body" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--space-6);">
+            <!-- 左：求人入力フォーム -->
+            <div>
+                <div class="input-group" style="margin-bottom: var(--space-4);">
+                    <label class="input-label">求人タイトル</label>
+                    <input type="text" class="input" id="newJobTitle" placeholder="例: フロントエンドエンジニア">
+                </div>
+                <div class="input-group" style="margin-bottom: var(--space-4);">
+                    <label class="input-label">会社名</label>
+                    <input type="text" class="input" id="newJobCompany" placeholder="例: 株式会社〇〇">
+                </div>
+                <div class="input-group" style="margin-bottom: var(--space-4);">
+                    <label class="input-label">求人内容</label>
+                    <textarea class="input textarea" id="newJobDescription" rows="6"
+                        placeholder="求人票の内容を貼り付けてください..."></textarea>
+                </div>
+                <div class="input-group" style="margin-bottom: var(--space-4);">
+                    <label class="input-label">企業との打ち合わせメモ（オプション）</label>
+                    <textarea class="input textarea" id="newJobMeetingMemo" rows="4"
+                        placeholder="企業との打ち合わせ内容やヒアリングメモを貼り付けると、AIが求人情報を自動構成します..."></textarea>
+                    <button class="btn btn-ghost btn-sm" id="processJobMemoBtn" style="margin-top: var(--space-2);">
+                        🤖 メモからAIで求人情報を構成
+                    </button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+                    <div class="input-group">
+                        <label class="input-label">年収</label>
+                        <input type="text" class="input" id="newJobSalary" placeholder="例: 500万〜700万円">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">リモート</label>
+                        <select class="input" id="newJobRemote">
+                            <option value="true">可能</option>
+                            <option value="false">不可</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右：AIアシスタント -->
+            <div
+                style="background: var(--bg-surface); border-radius: var(--radius-xl); padding: var(--space-4); display: flex; flex-direction: column; height: fit-content;">
+                <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3);">
+                    <span style="font-size: 1.25rem;">🤖</span>
+                    <span style="font-weight: var(--font-weight-semibold);">AIパートナー</span>
+                </div>
+                <p style="font-size: var(--font-size-xs); color: var(--text-muted); margin-bottom: var(--space-3);">
+                    求人作成をサポートします。質問やアドバイスを求めてください。
+                </p>
+                <div style="display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-3);">
+                    <button class="quick-action-btn add-job-ai-btn" data-action="brushup"
+                        style="font-size: var(--font-size-xs); padding: var(--space-2);">
+                        ✨ 求人票のブラッシュアップポイントを教えて
+                    </button>
+                    <button class="quick-action-btn add-job-ai-btn" data-action="success-tips"
+                        style="font-size: var(--font-size-xs); padding: var(--space-2);">
+                        🎯 求人を決まりやすくするためのポイントを教えて
+                    </button>
+                </div>
+                <div style="margin-bottom: var(--space-3);">
+                    <div style="display: flex; gap: var(--space-2);">
+                        <input type="text" id="addJobAiInput" class="input" placeholder="自由に質問..."
+                            style="font-size: var(--font-size-xs); padding: var(--space-2); flex: 1;">
+                        <button id="addJobAiSendBtn" class="btn btn-primary btn-sm"
+                            style="padding: var(--space-2);">➤</button>
+                    </div>
+                </div>
+                <div id="addJobAiResponse"
+                    style="font-size: var(--font-size-sm); color: var(--text-secondary); line-height: var(--line-height-relaxed); max-height: 250px; overflow-y: auto;">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelAddJob">キャンセル</button>
+            <button class="btn btn-primary" id="saveNewJob">保存</button>
+        </div>
+    </div>
+
+    <!-- Settings Drawer Overlay -->
+    <div class="settings-drawer-overlay" id="settingsDrawerOverlay"></div>
+
+    <!-- Settings Drawer -->
+    <div class="settings-drawer" id="settingsDrawer">
+        <!-- Login Screen -->
+        <div class="settings-login" id="settingsLogin">
+            <div class="settings-login-content">
+                <h2>🔐 管理者ログイン（Admin Settings）</h2>
+                <div class="login-form">
+                    <div class="form-group">
+                        <label for="adminId">ID</label>
+                        <input type="text" id="adminId" placeholder="ID を入力">
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPass">パスワード</label>
+                        <input type="password" id="adminPass" placeholder="パスワードを入力">
+                    </div>
+                    <p class="login-hint">※ デモ環境では ID / パスワードともに「demo」でログインできます</p>
+                    <p class="login-error" id="loginError" style="display: none;">IDまたはパスワードが正しくありません</p>
+                    <button class="btn btn-primary" id="adminLoginBtn">ログイン</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Settings Panel (hidden until login) -->
+        <div class="settings-panel" id="settingsPanel" style="display: none;">
+            <div class="settings-header">
+                <h3>⚙️ Admin Settings</h3>
+                <div class="settings-header-actions">
+                    <span class="settings-scope-badge" id="settingsScopeBadge">Personal</span>
+                    <button class="btn btn-ghost" id="closeSettingsDrawer">✕</button>
+                </div>
+            </div>
+
+            <div class="settings-body">
+                <!-- Left Menu -->
+                <div class="settings-menu">
+                    <div class="settings-menu-item active" data-section="scoring">📊 スコアリング</div>
+                    <div class="settings-menu-item" data-section="marketfit">⭐ Market Fit</div>
+                    <div class="settings-menu-item" data-section="labels">🏷️ ラベル判定</div>
+                    <div class="settings-menu-item" data-section="reasons">💬 Reasons</div>
+                    <div class="settings-menu-item" data-section="aipresets">🤖 AIプリセット</div>
+                    <div class="settings-menu-item" data-section="data">💾 データ管理</div>
+                    <div class="settings-menu-divider"></div>
+                    <div class="settings-scope-toggle">
+                        <label>編集スコープ:</label>
+                        <select id="settingsScopeSelect">
+                            <option value="personal">Personal</option>
+                            <option value="org">Org（組織）</option>
+                        </select>
+                    </div>
+                    <p class="settings-priority-hint">優先順位: Personal > Org > Default</p>
+                </div>
+
+                <!-- Right Content -->
+                <div class="settings-content">
+                    <!-- Scoring Section -->
+                    <div class="settings-section active" id="section-scoring">
+                        <h4>スコアリング設定（Match Score）</h4>
+                        <p class="section-desc">4カテゴリの重みを調整します（合計100になるように設定）</p>
+                        <div class="weight-inputs">
+                            <div class="weight-row">
+                                <label>職種一致</label>
+                                <input type="number" id="weightJob" min="0" max="100" value="35">
+                                <span>%</span>
+                            </div>
+                            <div class="weight-row">
+                                <label>スキル一致</label>
+                                <input type="number" id="weightSkill" min="0" max="100" value="35">
+                                <span>%</span>
+                            </div>
+                            <div class="weight-row">
+                                <label>ソフトスキル</label>
+                                <input type="number" id="weightSoft" min="0" max="100" value="20">
+                                <span>%</span>
+                            </div>
+                            <div class="weight-row">
+                                <label>条件一致</label>
+                                <input type="number" id="weightConditions" min="0" max="100" value="10">
+                                <span>%</span>
+                            </div>
+                            <div class="weight-total">
+                                合計: <span id="weightTotal">100</span>%
+                                <span id="weightError" class="weight-error" style="display: none;">（合計100にしてください）</span>
+                            </div>
+                        </div>
+                        <h5>プレビュー</h5>
+                        <select id="previewCandidateSelect" style="width: 100%; margin-bottom: var(--space-3);">
+                            <option value="">候補者を選択してプレビュー...</option>
+                        </select>
+                        <div id="scorePreview" class="score-preview"></div>
+                    </div>
+
+                    <!-- Market Fit Section (5軸評価) -->
+                    <div class="settings-section" id="section-marketfit">
+                        <h4>市場決まりやすさ（⭐ Market Fit）</h4>
+                        <p class="section-desc">5軸評価に基づく二値判定（付与 / 非付与）。各軸はLLMが評価します。</p>
+
+                        <div class="marketfit-rule">
+                            <div class="threshold-row">
+                                <label>⭐付与条件</label>
+                                <span>ポジティブ評価 ≥</span>
+                                <input type="number" id="marketFitPositives" min="1" max="5" value="3">
+                                <span>軸</span>
+                            </div>
+                        </div>
+
+                        <div class="marketfit-axes-edit">
+                            <h5>評価軸（LLMプロンプトに使用）</h5>
+                            <p class="section-desc" style="margin-bottom: var(--space-3);">
+                                各軸のラベルと説明を編集できます。LLMはこのプロンプトを基に候補者を評価します。</p>
+
+                            <div class="axis-edit-item">
+                                <div class="axis-edit-header">
+                                    <span class="axis-emoji">📈</span>
+                                    <input type="text" id="axis1Label" class="axis-label-input"
+                                        value="市場需要一致度（Demand Fit）">
+                                </div>
+                                <textarea id="axis1Desc" class="axis-desc-input"
+                                    rows="2">現在の市場で需要がある人材か（職種・スキルの市場ニーズ）</textarea>
+                            </div>
+
+                            <div class="axis-edit-item">
+                                <div class="axis-edit-header">
+                                    <span class="axis-emoji">🔄</span>
+                                    <input type="text" id="axis2Label" class="axis-label-input"
+                                        value="条件摩擦の少なさ（Friction）">
+                                </div>
+                                <textarea id="axis2Desc" class="axis-desc-input"
+                                    rows="2">希望条件と市場相場のギャップが小さいか（年収・勤務形態・勤務地）</textarea>
+                            </div>
+
+                            <div class="axis-edit-item">
+                                <div class="axis-edit-header">
+                                    <span class="axis-emoji">⚡</span>
+                                    <input type="text" id="axis3Label" class="axis-label-input"
+                                        value="意思決定スピード（Decision Readiness）">
+                                </div>
+                                <textarea id="axis3Desc" class="axis-desc-input"
+                                    rows="2">転職意向が明確で動きが早いか（即日可能か、面接調整しやすいか）</textarea>
+                            </div>
+
+                            <div class="axis-edit-item">
+                                <div class="axis-edit-header">
+                                    <span class="axis-emoji">📊</span>
+                                    <input type="text" id="axis4Label" class="axis-label-input"
+                                        value="市場適合レンジ（Market Range Fit）">
+                                </div>
+                                <textarea id="axis4Desc" class="axis-desc-input"
+                                    rows="2">年収・ポジションが市場レンジ内か（求人ボリュームゾーンに合致）</textarea>
+                            </div>
+
+                            <div class="axis-edit-item">
+                                <div class="axis-edit-header">
+                                    <span class="axis-emoji">🛡️</span>
+                                    <input type="text" id="axis5Label" class="axis-label-input" value="リスク要因の少なさ（Risk）">
+                                </div>
+                                <textarea id="axis5Desc" class="axis-desc-input"
+                                    rows="2">転職回数・ブランク等のリスクが低いか（書類選考通過率に影響）</textarea>
+                            </div>
+                        </div>
+
+                        <label class="checkbox-row"
+                            style="margin-top: var(--space-4); display: flex; align-items: center; gap: var(--space-2);">
+                            <input type="checkbox" id="marketFitBlockNegative" checked>
+                            <span>重大ネガティブ要因がある場合は⭐非付与</span>
+                        </label>
+                    </div>
+
+                    <!-- Labels Section -->
+                    <div class="settings-section" id="section-labels">
+                        <h4>ラベル判定</h4>
+                        <p class="section-desc">推奨/良好/要確認 の境界値を設定します</p>
+                        <div class="threshold-inputs">
+                            <div class="threshold-row">
+                                <label>🟢 推奨</label>
+                                <span>matchScore ≥</span>
+                                <input type="number" id="labelRecommended" min="0" max="100" value="85">
+                            </div>
+                            <div class="threshold-row">
+                                <label>🟡 良好</label>
+                                <span>matchScore ≥</span>
+                                <input type="number" id="labelGood" min="0" max="100" value="70">
+                            </div>
+                            <div class="threshold-row">
+                                <label>🔴 要確認</label>
+                                <span>それ以下</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reasons Section -->
+                    <div class="settings-section" id="section-reasons">
+                        <h4>Reasonsテンプレ</h4>
+                        <p class="section-desc">WHY MATCH の候補プールを編集します（1行1項目）</p>
+                        <textarea id="reasonsPool" rows="10" placeholder="職種経験が豊富
+顧客折衝が強い
+改善推進が得意
+リーダーシップあり
+..."></textarea>
+                        <h5>禁止ワード（カンマ区切り）</h5>
+                        <input type="text" id="reasonsBannedWords" placeholder="NG, 不適切, ...">
+                    </div>
+
+                    <!-- AI Presets Section -->
+                    <div class="settings-section" id="section-aipresets">
+                        <h4>AIプリセット/Prompt</h4>
+                        <p class="section-desc">各タブのAIサポーターのプリセット（チップ）を編集します</p>
+                        <div class="ai-tab-select">
+                            <label>対象タブ:</label>
+                            <select id="aiPresetTab">
+                                <option value="candidateSearch">候補者検索</option>
+                                <option value="jobSearch">求人票から検索</option>
+                                <option value="interviewSheet">面談シート作成</option>
+                                <option value="proposals">提案済み（進捗）</option>
+                                <option value="candidatePopup">候補者詳細ポップアップ</option>
+                                <option value="jobPopup">求人詳細ポップアップ</option>
+                            </select>
+                        </div>
+                        <h5>プリセット文言（1行1件、最低3件）</h5>
+                        <textarea id="aiPresetTexts" rows="6" placeholder="💬 コミュニケーション能力が高い人だけ表示
+💪 メンタルが強い人だけ表示
+🚀 ベンチャーマインドが強い人だけ表示"></textarea>
+                        <h5>Prompt設定</h5>
+                        <select id="promptType">
+                            <option value="scout">スカウト文</option>
+                            <option value="jobImprove">求人改善</option>
+                            <option value="interviewReport">面談分析</option>
+                        </select>
+                        <textarea id="promptText" rows="4" placeholder="Promptを入力..."></textarea>
+                    </div>
+
+                    <!-- Data Management Section -->
+                    <div class="settings-section" id="section-data">
+                        <h4>データ管理</h4>
+                        <p class="section-desc">設定のバックアップ・復元を行います</p>
+                        <div class="data-actions">
+                            <button class="btn btn-secondary" id="resetPersonalBtn">🔄 Personal設定を初期化</button>
+                            <button class="btn btn-secondary" id="resetOrgBtn">🔄 Org設定を初期化</button>
+                            <hr>
+                            <button class="btn btn-secondary" id="exportSettingsBtn">⬇️ JSON Export</button>
+                            <div class="import-area">
+                                <label>⬆️ JSON Import:</label>
+                                <input type="file" id="importSettingsFile" accept=".json">
+                            </div>
+                        </div>
+                        <div id="importStatus" class="import-status"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-footer">
+                <button class="btn btn-ghost" id="cancelSettingsBtn">キャンセル</button>
+                <button class="btn btn-primary" id="applySettingsBtn">適用（Apply）</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Org Login Modal -->
+    <div class="org-login-modal" id="orgLoginModal">
+        <div class="org-login-content">
+            <h3>🏢 組織設定へのアクセス</h3>
+            <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-4);">
+                組織（Org）設定を編集するには認証が必要です
+            </p>
+            <div class="form-group">
+                <label for="orgLoginId">ID</label>
+                <input type="text" id="orgLoginId" placeholder="組織管理者ID">
+            </div>
+            <div class="form-group">
+                <label for="orgLoginPass">パスワード</label>
+                <input type="password" id="orgLoginPass" placeholder="パスワード">
+            </div>
+            <p class="org-login-hint">※ デモ環境ではID/パスワードともに「orgdemo」でログイン可能</p>
+            <p class="org-login-error" id="orgLoginError">IDまたはパスワードが正しくありません</p>
+            <div class="org-login-buttons">
+                <button class="btn btn-ghost" id="orgLoginCancelBtn">キャンセル</button>
+                <button class="btn btn-primary" id="orgLoginSubmitBtn">認証</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Script - Inline to avoid CORS issues with file:// protocol -->
+    <script src="src/lib/settings.js"></script>
+    <script src="src/app.js"></script>
+</body>
+
+</html>
