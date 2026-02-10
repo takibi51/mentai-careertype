@@ -550,7 +550,7 @@
     // --- REGISTER SCREEN ---
     function setupRegisterScreen(resultType) {
         // LINE友だち追加URLにsession_idとresult_numberを含める
-        const lineUrl = `https://liff.line.me/YOUR_LIFF_ID?session_id=${SESSION_ID}&result=${resultType.num}`;
+        const lineUrl = `https://app.mentai.me/personality/line-auth?session_id=${SESSION_ID}&result=${resultType.num}`;
         const lineBtn = document.getElementById('btn-line-register');
         if (lineBtn) {
             lineBtn.href = lineUrl;
